@@ -1,0 +1,658 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rose Lexicon</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column with four tabs (cards, quiz, words, progress). Blush card front flips to a charcoal back. */
+:root{
+  --ivory:#F6F4F2; --blush:#D6B7B7; --taupe:#8E7C7C; --charcoal:#2D2D2D;
+  --on-blush:#2D2D2D; --on-dark:#F6F4F2;
+  --bg:#F6F4F2; --surface:#FFFFFF; --surface-2:#EDE7E4; --fg:#2D2D2D; --fg-2:#6A5B5B; --line:#E0D6D3;
+  --accent:#D6B7B7; --accent-soft:#EBD9D9; --primary:#2D2D2D; --primary-ink:#F6F4F2;
+  --bar:#8E7C7C; --bar-2:#D6B7B7; --card-back:#2D2D2D;
+  --good:#4E7B63; --good-bg:#E0ECE4; --bad:#A24C4C; --bad-bg:#F3DDDB;
+  --display:'Unbounded','Manrope',system-ui,sans-serif;
+  --body:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1F1D1D; --surface:#2D2D2D; --surface-2:#3A3535; --fg:#F6F4F2; --fg-2:#C6B8B8; --line:#453F3F;
+    --accent:#D6B7B7; --accent-soft:#4B3D3D; --primary:#D6B7B7; --primary-ink:#2D2D2D;
+    --bar:#D6B7B7; --bar-2:#6E5F5F; --card-back:#3B3535;
+    --good:#8DBB9F; --good-bg:#2A3A31; --bad:#E39A94; --bad-bg:#44292A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1F1D1D; --surface:#2D2D2D; --surface-2:#3A3535; --fg:#F6F4F2; --fg-2:#C6B8B8; --line:#453F3F;
+  --accent:#D6B7B7; --accent-soft:#4B3D3D; --primary:#D6B7B7; --primary-ink:#2D2D2D;
+  --bar:#D6B7B7; --bar-2:#6E5F5F; --card-back:#3B3535;
+  --good:#8DBB9F; --good-bg:#2A3A31; --bad:#E39A94; --bad-bg:#44292A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.5 var(--body);-webkit-font-smoothing:antialiased;
+  padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:640px;margin:0 auto;display:grid;gap:16px}
+main{display:grid;gap:14px;min-width:0}
+button,input,select{font-family:inherit}
+:focus-visible{outline:3px solid var(--bar);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.eyebrow{margin:0 0 8px;font:500 10px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--fg-2)}
+h1{margin:0;font:600 26px/1.1 var(--display);letter-spacing:-.01em}
+.streak{display:grid;text-align:right;line-height:1.15}
+.streak b{font:600 24px/1 var(--display)}
+.streak span{font-size:12px;color:var(--fg-2)}
+.goal{display:grid;gap:8px}
+.goal-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--fg-2)}
+.goal-row b{color:var(--fg)}
+.bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;display:flex}
+.bar i{display:block;height:100%;width:0;transition:width .4s}
+.fill-a{background:var(--bar)} .fill-b{background:var(--bar-2)}
+
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;background:var(--surface-2);border-radius:14px}
+.tab{appearance:none;border:0;background:transparent;color:var(--fg-2);font:600 13px/1 var(--body);min-height:44px;padding:0 4px;border-radius:10px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgb(45 45 45 / .14)}
+
+.filters{display:grid;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{appearance:none;border:1px solid var(--line);background:transparent;color:var(--fg);font:600 13px/1 var(--body);min-height:40px;padding:0 14px;border-radius:99px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
+select,input[type="text"],input[type="search"]{width:100%;min-height:48px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg);font-size:16px}
+.count{margin:0;font-size:13px;color:var(--fg-2)}
+
+.btn{appearance:none;border:1px solid transparent;border-radius:14px;min-height:52px;padding:0 16px;font:700 15px/1 var(--body);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{filter:brightness(.96)}
+.btn-primary{background:var(--primary);color:var(--primary-ink)}
+.btn-soft{background:var(--surface);color:var(--fg);border-color:var(--line)}
+.btn.sm{min-height:40px;font-size:13px;padding:0 14px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px}
+.center{text-align:center}
+.stack{display:grid;gap:14px}
+.h{margin:0;font:500 11px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--fg-2)}
+.empty{margin:0;color:var(--fg-2);text-align:center;padding:24px 0}
+
+.pill{display:inline-block;font:500 10px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:99px;border:1px solid var(--bar);color:var(--fg);white-space:nowrap}
+.pill.lvl-B2{background:var(--accent-soft);border-color:transparent}
+.pill.lvl-IELTS{background:var(--primary);color:var(--primary-ink);border-color:transparent}
+.pill.lvl-my{border-style:dashed}
+.dots{display:inline-flex;gap:3px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
+.dots i.on{background:var(--bar);box-shadow:none}
+mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 3px}
+
+.deck-meta{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--fg-2)}
+.deck-meta .bar{flex:1}
+.card{perspective:1200px;cursor:pointer;border-radius:24px;outline-offset:4px}
+.card-inner{display:grid;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,.7,.2,1)}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.face{grid-area:1/1;min-height:340px;padding:20px;border-radius:24px;display:flex;flex-direction:column;gap:16px;backface-visibility:hidden;-webkit-backface-visibility:hidden;min-width:0}
+.front{background:var(--accent);color:var(--on-blush)}
+.back{background:var(--card-back);color:var(--on-dark);transform:rotateY(180deg)}
+.card.flipped .front,.card:not(.flipped) .back{pointer-events:none}
+.face-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}
+.front .pill{border-color:rgb(45 45 45 / .4);color:var(--on-blush);background:transparent}
+.back .pill{border-color:rgb(246 244 242 / .45);color:var(--on-dark);background:transparent}
+.face-main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;overflow-wrap:anywhere}
+.front .face-main{align-items:center;text-align:center}
+.big{font:500 28px/1.2 var(--display)}
+.mid{font:500 20px/1.3 var(--display)}
+.tr{font:700 26px/1.25 var(--body)}
+.ex{margin:0;font-size:16px;line-height:1.55}
+.back mark{background:var(--blush);color:var(--on-blush)}
+.face-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.ghost{appearance:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:99px;border:1px solid currentColor;background:transparent;color:inherit;font:600 13px/1 var(--body);cursor:pointer}
+.row-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.w .ghost{color:var(--fg)}
+.seg{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+.q-kind{font:500 11px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--fg-2)}
+.q-text{margin:14px 0 0;font:500 24px/1.25 var(--display);overflow-wrap:anywhere}
+.q-text.sentence{font:600 19px/1.55 var(--body)}
+.q-hint{margin:10px 0 0;font-size:14px;color:var(--fg-2)}
+.blank{display:inline-block;min-width:3.5em;border-bottom:2px solid var(--bar);text-align:center;color:var(--fg-2)}
+.opts{display:grid;gap:10px}
+.opt{appearance:none;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:14px;padding:14px 16px;min-height:52px;font:600 15px/1.35 var(--body);cursor:pointer;display:flex;gap:12px;align-items:center}
+.opt .k{font:500 11px/1 var(--display);color:var(--fg-2);width:16px;flex:none}
+.opt.good{border-color:var(--good);background:var(--good-bg)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.dim{opacity:.6}
+.opt:disabled{cursor:default}
+.fb{border-radius:14px;padding:14px 16px;font-size:14px;display:grid;gap:6px}
+.fb.good{background:var(--good-bg)} .fb.bad{background:var(--bad-bg)}
+.fb strong{font-size:15px}
+.score{font:600 56px/1 var(--display);margin:12px 0 8px}
+.score small{font-size:22px;color:var(--fg-2)}
+.miss{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.miss li{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.miss li span{color:var(--fg-2);text-align:right}
+
+.list{display:grid}
+.w{border-bottom:1px solid var(--line)}
+.w summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 2px;min-height:60px}
+.w summary::-webkit-details-marker{display:none}
+.w-main{display:grid;gap:2px;min-width:0}
+.w-main span{color:var(--fg-2);font-size:14px}
+.w-meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none}
+.w-body{padding:0 2px 16px;display:grid;gap:10px}
+.add{border:1px dashed var(--bar);border-radius:16px;padding:0 16px}
+.add summary{cursor:pointer;font-weight:700;min-height:56px;display:flex;align-items:center;list-style:none}
+.add summary::-webkit-details-marker{display:none}
+.add form{display:grid;gap:12px;padding-bottom:16px}
+label{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--fg-2)}
+.note{margin:0;font-size:12px;color:var(--fg-2);font-weight:400}
+
+.nums{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--line);border-radius:20px}
+.nums div{padding:16px;display:grid;gap:6px}
+.nums div+div{border-left:1px solid var(--line)}
+.nums b{font:600 28px/1 var(--display)}
+.nums span{font-size:13px;color:var(--fg-2)}
+.lvl-row{display:grid;gap:8px}
+.lvl-row .row{display:flex;justify-content:space-between;gap:12px;font-size:14px;align-items:baseline}
+.lvl-row small{display:block;color:var(--fg-2);font-size:12px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.week .col{display:grid;gap:6px;text-align:center;font-size:12px;color:var(--fg-2)}
+.plot{height:100px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+.plot b{font-size:12px;color:var(--fg)}
+.plot i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:var(--bar-2)}
+.col.today .plot i{background:var(--bar)}
+.col.today{color:var(--fg);font-weight:700}
+
+.toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));margin:0 auto;max-width:360px;background:var(--primary);color:var(--primary-ink);padding:12px 16px;border-radius:14px;font-size:14px;font-weight:600;text-align:center}
+@media (prefers-reduced-motion:reduce){.card-inner,.bar i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">English · B1 → IELTS</p>
+      <h1>Rose Lexicon</h1>
+    </div>
+    <div class="streak"><b id="streakN">0</b><span id="streakW">дней подряд</span></div>
+  </header>
+
+  <div class="goal">
+    <div class="goal-row"><span>Сегодня <b id="todayN">0</b> из <b id="goalN">15</b></span><span id="goalMsg"></span></div>
+    <div class="bar"><i id="goalBar" class="fill-a"></i></div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Разделы">
+    <button class="tab" role="tab" data-act="tab" data-tab="cards" aria-selected="true">Карточки</button>
+    <button class="tab" role="tab" data-act="tab" data-tab="quiz" aria-selected="false">Тест</button>
+    <button class="tab" role="tab" data-act="tab" data-tab="words" aria-selected="false">Слова</button>
+    <button class="tab" role="tab" data-act="tab" data-tab="stats" aria-selected="false">Прогресс</button>
+  </nav>
+
+  <div id="filters" class="filters"></div>
+  <main id="view"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+/* [english, русский, example with *target*, level, topic] */
+var RAW=[
+["reliable","надёжный","My brother is a *reliable* person; he always keeps his promises.","B1","Повседневность"],
+["achieve","достигать, добиваться","She worked hard to *achieve* her goal.","B1","Работа и учёба"],
+["improve","улучшать","I want to *improve* my English before the exam.","B1","Работа и учёба"],
+["take part in","принимать участие в","Many students *take part in* the school competition.","B1","Работа и учёба"],
+["look forward to","с нетерпением ждать","I'm *looking forward to* the weekend.","B1","Повседневность"],
+["get used to","привыкать к","It took me a month to *get used to* the new schedule.","B1","Повседневность"],
+["come up with","придумать","We need to *come up with* a better plan.","B1","Работа и учёба"],
+["run out of","у кого-то закончилось","We've *run out of* milk, so I'll go to the shop.","B1","Повседневность"],
+["pay attention to","обращать внимание на","You should *pay attention to* grammar mistakes.","B1","Работа и учёба"],
+["be responsible for","отвечать за","She *is responsible for* training new employees.","B1","Работа и учёба"],
+["depend on","зависеть от","The price *depends on* the size of the room.","B1","Повседневность"],
+["afford","позволить себе (по деньгам)","I can't *afford* a new phone right now.","B1","Повседневность"],
+["convenient","удобный","The hotel is in a very *convenient* location.","B1","Повседневность"],
+["suggest","предлагать","I *suggest* taking the earlier train.","B1","Повседневность"],
+["make a decision","принять решение","It's hard to *make a decision* when you don't have all the facts.","B1","Повседневность"],
+["a great deal of","большое количество","He spends *a great deal of* time online.","B1","Повседневность"],
+["be good at","хорошо справляться с","She *is good at* solving puzzles.","B1","Работа и учёба"],
+["in my opinion","по моему мнению","*In my opinion*, public transport should be cheaper.","B1","Speaking"],
+["as soon as possible","как можно скорее","Please reply *as soon as possible*.","B1","Работа и учёба"],
+["fit in","вписаться, найти общий язык","It took her a while to *fit in* at the new school.","B1","Общество"],
+
+["tackle","браться за решение, бороться с","The government must *tackle* unemployment.","B2","Общество"],
+["raise awareness","повышать осведомлённость","The campaign aims to *raise awareness* of mental health.","B2","Общество"],
+["keep up with","не отставать от","It's hard to *keep up with* new technology.","B2","Экология и технологии"],
+["make ends meet","сводить концы с концами","Many families struggle to *make ends meet*.","B2","Общество"],
+["in the long run","в долгосрочной перспективе","Learning a language pays off *in the long run*.","B2","Связки (Writing 2)"],
+["have an impact on","оказывать влияние на","Social media *has an impact on* young people's self-esteem.","B2","Общество"],
+["cope with","справляться с","Students need to *cope with* heavy workloads.","B2","Работа и учёба"],
+["widespread","широко распространённый","Online shopping has become *widespread*.","B2","Общество"],
+["overcome","преодолевать","She *overcame* her fear of public speaking.","B2","Работа и учёба"],
+["benefit from","извлекать пользу из","Small businesses can *benefit from* digital tools.","B2","Работа и учёба"],
+["sustainable","устойчивый, экологичный","We need more *sustainable* sources of energy.","B2","Экология и технологии"],
+["carbon footprint","углеродный след","Flying less is one way to reduce your *carbon footprint*.","B2","Экология и технологии"],
+["renewable energy","возобновляемая энергия","Solar and wind are forms of *renewable energy*.","B2","Экология и технологии"],
+["draw a conclusion","делать вывод","It's too early to *draw a conclusion* from one study.","B2","Работа и учёба"],
+["a wide range of","широкий спектр","The course covers *a wide range of* topics.","B2","Работа и учёба"],
+["face challenges","сталкиваться с трудностями","Immigrants often *face challenges* when they look for work.","B2","Общество"],
+["artificial intelligence","искусственный интеллект","*Artificial intelligence* is changing how we work.","B2","Экология и технологии"],
+["work-life balance","баланс работы и личной жизни","A good *work-life balance* reduces stress.","B2","Работа и учёба"],
+["on the other hand","с другой стороны","Cars are convenient; *on the other hand*, they cause pollution.","B2","Связки (Writing 2)"],
+["as a result","в результате","Prices rose, and *as a result*, fewer people bought cars.","B2","Связки (Writing 2)"],
+
+["It is widely believed that","Широко считается, что","*It is widely believed that* technology makes people more isolated.","IELTS","Связки (Writing 2)"],
+["There is a growing trend towards","Растёт тенденция к","*There is a growing trend towards* remote work.","IELTS","Связки (Writing 2)"],
+["To a certain extent","В определённой степени","*To a certain extent*, I agree with this view.","IELTS","Связки (Writing 2)"],
+["Nevertheless","Тем не менее","The plan is expensive. *Nevertheless*, it will save money.","IELTS","Связки (Writing 2)"],
+["Furthermore","Более того","*Furthermore*, public transport reduces traffic.","IELTS","Связки (Writing 2)"],
+["whereas","тогда как","Some people prefer cities, *whereas* others prefer villages.","IELTS","Связки (Writing 2)"],
+["In conclusion","В заключение","*In conclusion*, the advantages outweigh the disadvantages.","IELTS","Связки (Writing 2)"],
+["outweigh","перевешивать","The benefits of cycling *outweigh* the risks.","IELTS","Связки (Writing 2)"],
+["be attributed to","объясняться, быть связанным с","The rise can *be attributed to* lower prices.","IELTS","Связки (Writing 2)"],
+["fluctuate","колебаться","Prices *fluctuated* between $2 and $4.","IELTS","Графики (Writing 1)"],
+["peak at","достигать пика на уровне","Sales *peaked at* 500 units in July.","IELTS","Графики (Writing 1)"],
+["remain stable","оставаться стабильным","The number of users *remained stable* at 20 million.","IELTS","Графики (Writing 1)"],
+["a sharp rise","резкий рост","There was *a sharp rise* in sales in 2020.","IELTS","Графики (Writing 1)"],
+["plummet","резко упасть","Oil prices *plummeted* in the spring.","IELTS","Графики (Writing 1)"],
+["account for","составлять (долю)","Women *account for* 60% of the students.","IELTS","Графики (Writing 1)"],
+["a steady increase","постоянный рост","There has been *a steady increase* in electric car sales.","IELTS","Графики (Writing 1)"],
+["Let me think about that","Дайте мне подумать над этим","That's an interesting question. *Let me think about that.*","IELTS","Speaking"],
+["To be honest","Честно говоря","*To be honest*, I'm not a big fan of fast food.","IELTS","Speaking"],
+["I'm not a big fan of","Я не большой поклонник","*I'm not a big fan of* crowded places.","IELTS","Speaking"],
+["What I mean is","Я имею в виду, что","*What I mean is* that cities need more parks.","IELTS","Speaking"],
+["It goes without saying","Само собой разумеется","*It goes without saying* that health comes first.","IELTS","Speaking"],
+["The upside is","Плюс в том, что","*The upside is* that you save a lot of time.","IELTS","Speaking"],
+["a blessing in disguise","не было бы счастья, да несчастье помогло","Losing that job was *a blessing in disguise*.","IELTS","Идиомы"],
+["once in a blue moon","очень редко","I eat fast food only *once in a blue moon*.","IELTS","Идиомы"],
+["under the weather","неважно себя чувствовать","I'm a bit *under the weather* today.","IELTS","Идиомы"],
+["a piece of cake","проще простого","The test was *a piece of cake*.","IELTS","Идиомы"],
+["on the same page","одинаково понимать ситуацию","Let's make sure we're all *on the same page*.","IELTS","Идиомы"],
+["mitigate","смягчать, уменьшать последствия","Trees can *mitigate* the effects of climate change.","IELTS","Экология и технологии"],
+["urbanisation","урбанизация","Rapid *urbanisation* puts pressure on housing.","IELTS","Общество"],
+["inevitable","неизбежный","Some change is *inevitable* as cities grow.","IELTS","Общество"],
+
+["outfit","наряд, комплект одежды","She wore a stylish *outfit* to the party.","B1","Мода"],
+["casual","повседневный, неформальный","I prefer *casual* clothes to formal ones.","B1","Мода"],
+["try on","примерять","Can I *try on* these jeans?","B1","Мода"],
+["suit","быть к лицу, идти","Blue really *suits* you.","B1","Мода"],
+["fit","подходить по размеру","These shoes don't *fit* me; they're too tight.","B1","Мода"],
+["be in fashion","быть в моде","Wide jeans *are in fashion* again this year.","B2","Мода"],
+["go out of fashion","выходить из моды","Some styles never *go out of fashion*.","B2","Мода"],
+["follow trends","следовать трендам","Teenagers often *follow trends* on social media.","B2","Мода"],
+["second-hand","б/у, из секонд-хенда","I buy most of my clothes *second-hand*.","B2","Мода"],
+["dress code","дресс-код","The company has a strict *dress code*.","B2","Мода"],
+["fast fashion","быстрая мода, масс-маркет","*Fast fashion* creates a lot of textile waste.","IELTS","Мода"],
+["consumerism","потребительство","Fashion advertising encourages *consumerism*.","IELTS","Мода"],
+["tailor-made","сшитый на заказ","He wore a *tailor-made* suit.","IELTS","Мода"],
+
+["book a flight","забронировать авиабилет","I *booked a flight* to Rome for May.","B1","Путешествия"],
+["luggage","багаж","Please keep your *luggage* with you at all times.","B1","Путешествия"],
+["check in","регистрироваться (на рейс, в отеле)","You must *check in* two hours before departure.","B1","Путешествия"],
+["delay","задержка","There was a two-hour *delay* because of the storm.","B1","Путешествия"],
+["sightseeing","осмотр достопримечательностей","We spent the day *sightseeing* in the old town.","B1","Путешествия"],
+["accommodation","жильё, проживание","*Accommodation* in the city centre is expensive.","B1","Путешествия"],
+["set off","отправиться в путь","We *set off* at six in the morning.","B1","Путешествия"],
+["get around","передвигаться по городу","It's easy to *get around* Tokyo by train.","B2","Путешествия"],
+["off the beaten track","вдали от туристических троп","We love holidays *off the beaten track*.","B2","Путешествия"],
+["broaden your horizons","расширять кругозор","Travelling can *broaden your horizons*.","B2","Путешествия"],
+["culture shock","культурный шок","I had *culture shock* during my first week abroad.","B2","Путешествия"],
+["tourist attraction","туристическая достопримечательность","The castle is a popular *tourist attraction*.","B2","Путешествия"],
+["jet lag","смена часовых поясов","I always get *jet lag* after a long flight.","B2","Путешествия"],
+["a package holiday","организованный тур","We booked *a package holiday* to Turkey.","B2","Путешествия"],
+["mass tourism","массовый туризм","*Mass tourism* can damage local communities.","IELTS","Путешествия"],
+["itinerary","маршрут, план поездки","Our *itinerary* includes three cities in five days.","IELTS","Путешествия"],
+
+["do the shopping","делать покупки (продукты)","I usually *do the shopping* on Saturday.","B1","Повседневность"],
+["pick up","забрать, подобрать","Can you *pick up* the kids from school?","B1","Повседневность"],
+["be in a hurry","спешить","Sorry, I'm *in a hurry* today.","B1","Повседневность"],
+["on time","вовремя","The train arrived *on time*.","B1","Повседневность"],
+["get along with","ладить с","I *get along with* my neighbours.","B1","Повседневность"],
+["catch up","пообщаться после долгого перерыва","Let's meet for coffee and *catch up*.","B1","Повседневность"],
+["hang out","проводить время, тусоваться","We often *hang out* at the park.","B1","Повседневность"],
+["rush hour","час пик","The roads are crowded during *rush hour*.","B1","Повседневность"],
+["housework","домашние дела","We share the *housework* equally.","B1","Повседневность"],
+["tidy up","прибираться","Please *tidy up* your room before dinner.","B1","Повседневность"],
+["spare time","свободное время","I read in my *spare time*.","B1","Повседневность"],
+["keep in touch","поддерживать связь","We *keep in touch* by video call.","B1","Повседневность"],
+["routine","распорядок дня, рутина","I try to stick to a daily *routine*.","B2","Повседневность"],
+["run errands","бегать по делам","I have to *run errands* this afternoon.","B2","Повседневность"],
+["put up with","мириться с","I can't *put up with* this noise any longer.","B2","Повседневность"],
+["get on someone's nerves","раздражать","His loud music *gets on my nerves*.","B2","Повседневность"],
+
+["deadline","крайний срок","The *deadline* for applications is 1 March.","B1","Учёба за рубежом"],
+["hand in","сдавать (работу)","You must *hand in* the essay by Friday.","B1","Учёба за рубежом"],
+["assignment","задание, письменная работа","The *assignment* is due next Monday.","B1","Учёба за рубежом"],
+["apply for a course","подать заявку на курс","She plans to *apply for a course* in design.","B1","Учёба за рубежом"],
+["enrol","записаться, поступить","She *enrolled* in a language course.","B2","Учёба за рубежом"],
+["tuition fees","плата за обучение","*Tuition fees* are rising every year.","B2","Учёба за рубежом"],
+["scholarship","стипендия, грант","He won a *scholarship* to study in London.","B2","Учёба за рубежом"],
+["attend lectures","ходить на лекции","Students are expected to *attend lectures* regularly.","B2","Учёба за рубежом"],
+["seminar","семинар","Each week there is a *seminar* in small groups.","B2","Учёба за рубежом"],
+["research","исследование","She is doing *research* on climate change.","B2","Учёба за рубежом"],
+["a degree in","степень, диплом по специальности","She has *a degree in* biology.","B2","Учёба за рубежом"],
+["student exchange","студенческий обмен","I joined a *student exchange* programme in Spain.","B2","Учёба за рубежом"],
+["gain experience","приобретать опыт","Internships help students *gain experience*.","B2","Учёба за рубежом"],
+["undergraduate","студент бакалавриата","Most *undergraduates* live on campus in the first year.","IELTS","Учёба за рубежом"],
+["postgraduate","магистрант, аспирант","She is a *postgraduate* student in economics.","IELTS","Учёба за рубежом"],
+["academic writing","академическое письмо","*Academic writing* requires a formal style.","IELTS","Учёба за рубежом"],
+["cite sources","ссылаться на источники","You must *cite your sources* in an academic essay.","IELTS","Учёба за рубежом"],
+["plagiarism","плагиат","*Plagiarism* can lead to expulsion.","IELTS","Учёба за рубежом"],
+["thesis","диссертация, дипломная работа","He is writing his *thesis* on renewable energy.","IELTS","Учёба за рубежом"],
+["lifelong learning","обучение на протяжении всей жизни","*Lifelong learning* helps people adapt to change.","IELTS","Учёба за рубежом"]
+];
+var SEED=RAW.map(function(r){return {id:r[0].toLowerCase(),en:r[0],ru:r[1],ex:r[2],lvl:r[3],topic:r[4]};});
+
+/* ---------- state ---------- */
+var KEY="rose-lexicon-v1";
+function load(){try{var s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}return null;}
+var state=Object.assign({boxes:{},log:{},custom:[],goal:15,side:"en",f:{}},load()||{});
+state.f=Object.assign({lvl:"all",topic:"all"},state.f||{});
+if(!Array.isArray(state.custom))state.custom=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+/* ---------- helpers ---------- */
+var $=function(s){return document.querySelector(s);};
+var view=$("#view"),filtersEl=$("#filters"),toastEl=$("#toast");
+var tab="cards";
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function uniq(a){return a.filter(function(x,i){return a.indexOf(x)===i;});}
+function plural(n,f){var m=n%10,h=n%100;if(m===1&&h!==11)return f[0];if(m>=2&&m<=4&&(h<12||h>14))return f[1];return f[2];}
+function dkey(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(x<10?"0":"")+x;}
+function all(){return SEED.concat(state.custom);}
+function item(id){var a=all();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
+function box(id){return state.boxes[id]||0;}
+function status(id){if(!(id in state.boxes))return "new";return state.boxes[id]>=4?"learned":"learning";}
+function filtered(){return all().filter(function(it){return (state.f.lvl==="all"||it.lvl===state.f.lvl)&&(state.f.topic==="all"||it.topic===state.f.topic);});}
+function sig(){return state.f.lvl+"|"+state.f.topic+"|"+state.custom.length;}
+function hl(ex){return esc(ex).replace(/\*([^*]+)\*/g,"<mark>$1</mark>");}
+function gap(ex){return esc(ex).replace(/\*([^*]+)\*/g,"<span class=\"blank\">____</span>");}
+function marked(ex){var m=(ex||"").match(/\*([^*]+)\*/);return m?m[1]:null;}
+function plain(s){return s.replace(/\*/g,"").replace(/\.\.\./g,"");}
+function pill(l){var c=l==="Моё"?"my":l;return "<span class=\"pill lvl-"+c+"\">"+esc(l)+"</span>";}
+function dots(b){var s="";for(var i=0;i<4;i++)s+="<i"+(i<b?" class=\"on\"":"")+"></i>";return "<span class=\"dots\" role=\"img\" aria-label=\"Освоено на "+b+" из 4\">"+s+"</span>";}
+var ICON="<svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5 6 9H3v6h3l5 4V5z\"/><path d=\"M15.5 8.5a5 5 0 0 1 0 7\"/><path d=\"M18.5 5.5a9 9 0 0 1 0 13\"/></svg>";
+var CAN_SPEAK=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+function speakBtn(text,label){return CAN_SPEAK?"<button class=\"ghost\" data-act=\"speak\" data-text=\""+esc(plain(text))+"\">"+ICON+"<span>"+label+"</span></button>":"";}
+var VOICES=[];
+function loadVoices(){try{VOICES=speechSynthesis.getVoices().filter(function(v){return /^en[-_]/i.test(v.lang);});}catch(e){}}
+if(CAN_SPEAK){loadVoices();try{speechSynthesis.addEventListener("voiceschanged",function(){loadVoices();if(tab==="stats")renderStats();});}catch(e){}}
+function voiceScore(v){
+  var n=v.name.toLowerCase(),s=0;
+  if(/natural|neural|online|premium|enhanced/.test(n))s+=50;
+  if(/google/.test(n))s+=20;
+  if(/libby|sonia|ryan|serena|daniel|samantha|karen|moira|aria|jenny|ava|allison|zoe|kate|oliver|stephanie/.test(n))s+=15;
+  if(/en[-_]gb/i.test(v.lang))s+=10;else if(/en[-_]us/i.test(v.lang))s+=6;
+  if(/compact|espeak|fred|zarvox|whisper|bells|boing|cellos|good news|jester|organ|trinoids|albert|junior|ralph|bahh|bubbles|deranged|hysterical|superstar|bad news/.test(n))s-=100;
+  return s;
+}
+function bestVoice(){
+  if(state.voice){for(var i=0;i<VOICES.length;i++)if(VOICES[i].voiceURI===state.voice)return VOICES[i];}
+  var b=null,bs=-1e9;
+  VOICES.forEach(function(v){var s=voiceScore(v);if(s>bs){bs=s;b=v;}});
+  return b;
+}
+function speak(t){
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(t),v=bestVoice();
+    if(v){u.voice=v;u.lang=v.lang;}else u.lang="en-GB";
+    u.rate=state.rate||.88;u.pitch=1;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function voiceUi(){
+  if(!CAN_SPEAK)return "";
+  var cur=bestVoice();
+  var opts=VOICES.slice().sort(function(a,b){return voiceScore(b)-voiceScore(a);}).map(function(v){
+    return "<option value=\""+esc(v.voiceURI)+"\""+(cur&&cur.voiceURI===v.voiceURI?" selected":"")+">"+esc(v.name)+" ("+esc(v.lang)+")</option>";
+  }).join("");
+  return "<label>Голос озвучки<select id=\"voice\">"+(opts||"<option value=\"\">Голоса не найдены</option>")+"</select></label>"+
+    "<label>Скорость речи<select id=\"rate\">"+[[.75,"Медленно"],[.88,"Обычная"],[1,"Быстро"]].map(function(r){
+      return "<option value=\""+r[0]+"\""+((state.rate||.88)===r[0]?" selected":"")+">"+r[1]+"</option>";
+    }).join("")+"</select></label>"+
+    "<button class=\"btn btn-soft\" data-act=\"speak\" data-text=\"Let me think about that. It is a very interesting question.\">Проверить голос</button>";
+}
+var tt;
+function toast(m){toastEl.textContent=m;toastEl.hidden=false;clearTimeout(tt);tt=setTimeout(function(){toastEl.hidden=true;},2200);}
+
+function streak(){var d=new Date(),n=0;if(!(state.log[dkey(d)]>0))d.setDate(d.getDate()-1);while(state.log[dkey(d)]>0){n++;d.setDate(d.getDate()-1);}return n;}
+function record(){var k=dkey(new Date());state.log[k]=(state.log[k]||0)+1;save();updateHeader();}
+function updateHeader(){
+  var n=state.log[dkey(new Date())]||0,s=streak();
+  $("#todayN").textContent=n;$("#goalN").textContent=state.goal;
+  $("#goalBar").style.width=Math.min(100,n/state.goal*100)+"%";
+  $("#goalMsg").textContent=n>=state.goal?"Цель на сегодня выполнена":"Осталось "+(state.goal-n);
+  $("#streakN").textContent=s;$("#streakW").textContent=plural(s,["день","дня","дней"])+" подряд";
+}
+
+/* ---------- filters ---------- */
+function renderFilters(){
+  if(tab==="stats"){filtersEl.hidden=true;return;}
+  filtersEl.hidden=false;
+  var lv=["all","B1","B2","IELTS"];if(state.custom.length)lv.push("Моё");
+  if(lv.indexOf(state.f.lvl)<0)state.f.lvl="all";
+  var topics=uniq(all().map(function(it){return it.topic;}));
+  if(state.f.topic!=="all"&&topics.indexOf(state.f.topic)<0)state.f.topic="all";
+  var n=filtered().length;
+  filtersEl.innerHTML=
+    "<div class=\"chips\" role=\"group\" aria-label=\"Уровень\">"+lv.map(function(l){
+      return "<button class=\"chip\" data-act=\"lvl\" data-v=\""+esc(l)+"\" aria-pressed=\""+(state.f.lvl===l)+"\">"+(l==="all"?"Все":esc(l))+"</button>";
+    }).join("")+"</div>"+
+    "<select id=\"topic\" aria-label=\"Тема\"><option value=\"all\">Все темы</option>"+topics.map(function(t){
+      return "<option value=\""+esc(t)+"\""+(state.f.topic===t?" selected":"")+">"+esc(t)+"</option>";
+    }).join("")+"</select>"+
+    "<p class=\"count\">"+n+" "+plural(n,["слово","слова","слов"])+" в наборе</p>";
+}
+function refilter(){save();if(tab==="cards")buildQueue();if(tab==="quiz")startQuiz();render();}
+
+/* ---------- flashcards ---------- */
+var L={queue:[],total:0,done:0,flipped:false,key:""};
+function buildQueue(force){
+  var list=filtered(),q=force?list.slice():list.filter(function(it){return box(it.id)<4;});
+  shuffle(q);q.sort(function(a,b){return box(a.id)-box(b.id);});
+  L.queue=q.map(function(it){return it.id;});L.total=q.length;L.done=0;L.flipped=false;L.key=sig();L.wasEmpty=(q.length===0);
+}
+function renderCards(){
+  if(!L.queue.length){
+    var has=filtered().length>0;
+    view.innerHTML="<div class=\"panel center stack\"><h2 class=\"h\">"+(has?(L.wasEmpty?"Всё выучено":"Набор пройден"):"Набор пуст")+"</h2><p style=\"margin:0\">"+
+      (has?(L.wasEmpty?"Все слова этого набора освоены. Можно повторить их ещё раз или проверить себя в тесте.":"Вы прошли "+L.done+" "+plural(L.done,["карточку","карточки","карточек"])+". Закрепите их в коротком тесте."):"В этом наборе нет слов. Смените уровень или тему.")+"</p>"+
+      (has?"<div class=\"actions\"><button class=\"btn btn-soft\" data-act=\"again-all\">Повторить набор</button><button class=\"btn btn-primary\" data-act=\"tab\" data-tab=\"quiz\">К тесту</button></div>":"")+"</div>";
+    return;
+  }
+  var it=item(L.queue[0]),en=state.side==="en";
+  var front=en?it.en:it.ru,back=en?it.ru:it.en;
+  var size=front.length>22?"mid":"big";
+  var pct=L.total?Math.round(L.done/L.total*100):0;
+  view.innerHTML=
+   "<div class=\"deck-meta\"><span>"+L.done+" из "+L.total+"</span><div class=\"bar\"><i class=\"fill-a\" style=\"width:"+pct+"%\"></i></div><span>"+dots(box(it.id))+"</span></div>"+
+   "<div class=\"card"+(L.flipped?" flipped":"")+"\" id=\"card\" role=\"button\" tabindex=\"0\" data-act=\"flip\" aria-label=\"Карточка. Нажмите, чтобы перевернуть\"><div class=\"card-inner\">"+
+     "<div class=\"face front\"><div class=\"face-top\">"+pill(it.lvl)+"<span>"+esc(it.topic)+"</span></div>"+
+       "<div class=\"face-main\"><div class=\""+size+"\">"+esc(front)+"</div></div>"+
+       "<div class=\"face-foot\"><span>Нажмите, чтобы перевернуть</span>"+(en?speakBtn(it.en,"Слушать"):"")+"</div></div>"+
+     "<div class=\"face back\"><div class=\"face-top\"><span>"+(en?"Перевод":"English")+"</span>"+pill(it.lvl)+"</div>"+
+       "<div class=\"face-main\"><div class=\"tr\">"+esc(back)+"</div>"+(it.ex?"<p class=\"ex\">"+hl(it.ex)+"</p>":"")+"</div>"+
+       "<div class=\"face-foot\">"+speakBtn(it.en,"Слово")+(it.ex?speakBtn(it.ex,"Пример"):"")+"</div></div>"+
+   "</div></div>"+
+   "<div class=\"actions\"><button class=\"btn btn-soft\" data-act=\"again\">Повторить</button><button class=\"btn btn-primary\" data-act=\"know\">Знаю</button></div>"+
+   "<div class=\"seg\" role=\"group\" aria-label=\"Что показывать на лицевой стороне\"><button class=\"chip\" data-act=\"side\" data-v=\"en\" aria-pressed=\""+en+"\">English → Русский</button><button class=\"chip\" data-act=\"side\" data-v=\"ru\" aria-pressed=\""+(!en)+"\">Русский → English</button></div>";
+}
+function flip(){var c=$("#card");if(!c)return;L.flipped=!L.flipped;c.classList.toggle("flipped",L.flipped);}
+function answerCard(known){
+  if(!L.queue.length)return;
+  var id=L.queue.shift();
+  if(known){state.boxes[id]=Math.min(4,box(id)+1);L.done++;}
+  else{state.boxes[id]=0;L.queue.splice(Math.min(3,L.queue.length),0,id);}
+  L.flipped=false;record();renderCards();
+}
+
+/* ---------- quiz ---------- */
+var Q={qs:[],i:0,score:0,picked:null,miss:[],finished:false,key:""};
+function makeQ(it){
+  var type="tr",correct,opts,m=marked(it.ex);
+  if(m&&Math.random()<.5){
+    var d=uniq(all().filter(function(p){return p.id!==it.id;}).map(function(p){return marked(p.ex);}).filter(Boolean)).filter(function(x){return x!==m;});
+    if(d.length>=3){type="gap";correct=m;opts=shuffle(d).slice(0,3);}
+  }
+  if(type==="tr"){
+    correct=it.ru;
+    opts=shuffle(uniq(all().filter(function(p){return p.id!==it.id;}).map(function(p){return p.ru;})).filter(function(x){return x!==correct;})).slice(0,3);
+  }
+  opts.push(correct);opts=shuffle(opts);
+  return {type:type,it:it,opts:opts,ans:opts.indexOf(correct),correct:correct};
+}
+function startQuiz(){
+  var pool=shuffle(filtered().slice());
+  pool.sort(function(a,b){return box(a.id)-box(b.id);});
+  pool=pool.slice(0,10);
+  Q={qs:pool.map(makeQ),i:0,score:0,picked:null,miss:[],finished:false,key:sig()};
+}
+function renderQuiz(){
+  if(!Q.qs.length){view.innerHTML="<div class=\"panel center\"><p style=\"margin:0\">В этом наборе нет слов. Смените уровень или тему.</p></div>";return;}
+  var n=Q.qs.length;
+  if(Q.finished){
+    var r=Q.score/n,msg=r>=.9?"Отличный результат.":r>=.6?"Хорошо. Слова с ошибками вернутся в начало карточек.":"Ничего страшного. Слова с ошибками вернутся в начало карточек.";
+    view.innerHTML="<div class=\"panel center\"><p class=\"h\">Результат</p><div class=\"score\">"+Q.score+"<small>/"+n+"</small></div><p style=\"margin:0\">"+msg+"</p></div>"+
+      (Q.miss.length?"<div class=\"panel stack\"><h2 class=\"h\">Над чем поработать</h2><ul class=\"miss\">"+Q.miss.map(function(it){return "<li><b>"+esc(it.en)+"</b><span>"+esc(it.ru)+"</span></li>";}).join("")+"</ul></div>":"")+
+      "<div class=\"actions\"><button class=\"btn btn-soft\" data-act=\"tab\" data-tab=\"cards\">К карточкам</button><button class=\"btn btn-primary\" data-act=\"newquiz\">Ещё раунд</button></div>";
+    return;
+  }
+  var q=Q.qs[Q.i],done=Q.picked!==null,letters=["A","B","C","D"];
+  var head="<div class=\"deck-meta\"><span>Вопрос "+(Q.i+1)+" из "+n+"</span><div class=\"bar\"><i class=\"fill-a\" style=\"width:"+Math.round(Q.i/n*100)+"%\"></i></div></div>";
+  var body=q.type==="tr"
+    ?"<div class=\"q-kind\">Выберите перевод</div><p class=\"q-text\">"+esc(q.it.en)+"</p>"
+    :"<div class=\"q-kind\">Вставьте пропущенное</div><p class=\"q-text sentence\">"+gap(q.it.ex)+"</p><p class=\"q-hint\">Перевод: "+esc(q.it.ru)+"</p>";
+  var opts=q.opts.map(function(o,k){
+    var c=done?(k===q.ans?" good":(k===Q.picked?" bad":" dim")):"";
+    return "<button class=\"opt"+c+"\" data-act=\"pick\" data-i=\""+k+"\""+(done?" disabled":"")+"><span class=\"k\">"+letters[k]+"</span><span>"+esc(o)+"</span></button>";
+  }).join("");
+  var fb="";
+  if(done){
+    var ok=Q.picked===q.ans;
+    fb="<div class=\"fb "+(ok?"good":"bad")+"\"><strong>"+(ok?"Верно":"Неверно")+"</strong>"+
+      (ok?"":"<span>Правильный ответ: <b>"+esc(q.correct)+"</b></span>")+
+      "<span><b>"+esc(q.it.en)+"</b> — "+esc(q.it.ru)+"</span>"+(q.it.ex?"<span>"+hl(q.it.ex)+"</span>":"")+"</div>"+
+      "<button class=\"btn btn-primary\" data-act=\"next\">"+(Q.i+1>=n?"Показать результат":"Дальше")+"</button>";
+  }
+  view.innerHTML=head+"<div class=\"panel\">"+body+"</div><div class=\"opts\">"+opts+"</div>"+fb;
+}
+function pick(k){
+  if(Q.picked!==null)return;
+  var q=Q.qs[Q.i],id=q.it.id;Q.picked=k;
+  if(k===q.ans){Q.score++;state.boxes[id]=Math.min(4,box(id)+1);}
+  else{Q.miss.push(q.it);state.boxes[id]=0;}
+  record();renderQuiz();
+}
+function nextQ(){Q.i++;Q.picked=null;if(Q.i>=Q.qs.length)Q.finished=true;renderQuiz();}
+
+/* ---------- words ---------- */
+var W={q:""};
+var ADD="<details class=\"add\"><summary>Добавить своё слово</summary><form id=\"addForm\" autocomplete=\"off\">"+
+  "<label>Слово или фраза<input id=\"nEn\" type=\"text\" required></label>"+
+  "<label>Перевод<input id=\"nRu\" type=\"text\" required></label>"+
+  "<label>Пример (необязательно)<input id=\"nEx\" type=\"text\"><span class=\"note\">Выделите слово звёздочками: I *rely on* my notes.</span></label>"+
+  "<button class=\"btn btn-primary\" type=\"submit\">Добавить</button></form></details>";
+function rowHtml(it){
+  return "<details class=\"w\"><summary><span class=\"w-main\"><b>"+esc(it.en)+"</b><span>"+esc(it.ru)+"</span></span><span class=\"w-meta\">"+pill(it.lvl)+dots(box(it.id))+"</span></summary>"+
+    "<div class=\"w-body\">"+(it.ex?"<p class=\"ex\">"+hl(it.ex)+"</p>":"")+"<div class=\"row-actions\">"+speakBtn(it.en,"Слушать")+
+    (it.custom?"<button class=\"btn btn-soft sm\" data-act=\"del\" data-id=\""+esc(it.id)+"\">Удалить</button>":"")+"</div></div></details>";
+}
+function renderList(){
+  var q=W.q.trim().toLowerCase();
+  var items=filtered().filter(function(it){return !q||it.en.toLowerCase().indexOf(q)>-1||it.ru.toLowerCase().indexOf(q)>-1;});
+  $("#list").innerHTML=items.length?items.map(rowHtml).join(""):"<p class=\"empty\">Ничего не найдено.</p>";
+}
+function renderWords(){
+  view.innerHTML="<label class=\"sr-only\" for=\"q\">Поиск</label><input id=\"q\" type=\"search\" placeholder=\"Поиск по слову или переводу\" value=\""+esc(W.q)+"\" autocomplete=\"off\"><div id=\"list\" class=\"list\"></div>"+ADD;
+  renderList();
+}
+function addWord(form){
+  var en=$("#nEn").value.trim(),ru=$("#nRu").value.trim(),ex=$("#nEx").value.trim();
+  if(!en||!ru){toast("Заполните слово и перевод");return;}
+  var id=en.toLowerCase();
+  if(all().some(function(it){return it.id===id;})){toast("Такое слово уже есть");return;}
+  state.custom.push({id:id,en:en,ru:ru,ex:ex,lvl:"Моё",topic:"Мои слова",custom:true});
+  save();form.reset();toast("Слово добавлено. Оно в уровне «Моё».");renderFilters();renderList();
+}
+
+/* ---------- progress ---------- */
+var R={confirm:false,t:0};
+var LVL_NOTE={"B1":"Базовые слова и фразы","B2":"Темы эссе и обсуждений","IELTS":"Writing, Speaking и академический язык","Моё":"Ваши слова"};
+function renderStats(){
+  var list=all(),n=0,l=0,d=0;
+  list.forEach(function(it){var s=status(it.id);if(s==="new")n++;else if(s==="learned")d++;else l++;});
+  var levels=["B1","B2","IELTS"];if(state.custom.length)levels.push("Моё");
+  var lvHtml=levels.map(function(lv){
+    var items=list.filter(function(it){return it.lvl===lv;}),tot=items.length,ld=0,lr=0;
+    items.forEach(function(it){var s=status(it.id);if(s==="learned")ld++;else if(s==="learning")lr++;});
+    return "<div class=\"lvl-row\"><div class=\"row\"><span><b>"+esc(lv)+"</b><small>"+LVL_NOTE[lv]+"</small></span><span>"+ld+" из "+tot+" выучено</span></div>"+
+      "<div class=\"bar\"><i class=\"fill-a\" style=\"width:"+(ld/tot*100)+"%\"></i><i class=\"fill-b\" style=\"width:"+(lr/tot*100)+"%\"></i></div></div>";
+  }).join("");
+  var days=[];
+  for(var i=6;i>=0;i--){var dt=new Date();dt.setDate(dt.getDate()-i);days.push({w:dt.toLocaleDateString("ru-RU",{weekday:"short"}),v:state.log[dkey(dt)]||0,today:i===0});}
+  var mx=Math.max.apply(null,days.map(function(x){return x.v;}).concat([1]));
+  var week=days.map(function(x){
+    return "<div class=\"col"+(x.today?" today":"")+"\"><div class=\"plot\">"+(x.v?"<b>"+x.v+"</b>":"")+"<i style=\"height:"+(x.v?Math.max(6,Math.round(x.v/mx*76)):3)+"px\"></i></div><span>"+esc(x.w)+"</span></div>";
+  }).join("");
+  var total=0;Object.keys(state.log).forEach(function(k){total+=state.log[k];});
+  view.innerHTML=
+    "<div class=\"nums\"><div><b>"+n+"</b><span>Новые</span></div><div><b>"+l+"</b><span>Учу</span></div><div><b>"+d+"</b><span>Выучено</span></div></div>"+
+    "<section class=\"panel stack\"><h2 class=\"h\">Прогресс по уровням</h2>"+lvHtml+"</section>"+
+    "<section class=\"panel stack\"><h2 class=\"h\">Последние 7 дней</h2><div class=\"week\">"+week+"</div><p class=\"count\">Всего ответов: "+total+"</p></section>"+
+    "<section class=\"panel stack\"><h2 class=\"h\">Настройки</h2><label>Цель на день<select id=\"goal\">"+[10,15,20,30].map(function(g){return "<option value=\""+g+"\""+(state.goal===g?" selected":"")+">"+g+" "+plural(g,["ответ","ответа","ответов"])+"</option>";}).join("")+"</select></label>"+voiceUi()+
+    "<button class=\"btn btn-soft\" data-act=\"reset\">"+(R.confirm?"Нажмите ещё раз, чтобы стереть прогресс":"Сбросить прогресс")+"</button></section>";
+}
+
+/* ---------- routing & events ---------- */
+function render(){
+  renderFilters();
+  if(tab==="cards")renderCards();else if(tab==="quiz")renderQuiz();else if(tab==="words")renderWords();else renderStats();
+}
+function setTab(t){
+  tab=t;
+  document.querySelectorAll(".tab").forEach(function(b){b.setAttribute("aria-selected",b.dataset.tab===t?"true":"false");});
+  if(t==="cards"&&L.key!==sig())buildQueue();
+  if(t==="quiz"&&(Q.key!==sig()||Q.finished))startQuiz();
+  render();
+}
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-act]");if(!t)return;
+  var a=t.dataset.act;
+  if(a==="tab")setTab(t.dataset.tab);
+  else if(a==="lvl"){state.f.lvl=t.dataset.v;refilter();}
+  else if(a==="flip")flip();
+  else if(a==="know")answerCard(true);
+  else if(a==="again")answerCard(false);
+  else if(a==="again-all"){buildQueue(true);renderCards();}
+  else if(a==="side"){state.side=t.dataset.v;save();renderCards();}
+  else if(a==="speak")speak(t.dataset.text);
+  else if(a==="pick")pick(+t.dataset.i);
+  else if(a==="next")nextQ();
+  else if(a==="newquiz"){startQuiz();renderQuiz();}
+  else if(a==="del"){var id=t.dataset.id;state.custom=state.custom.filter(function(it){return it.id!==id;});delete state.boxes[id];save();buildQueue();renderFilters();renderList();toast("Слово удалено");}
+  else if(a==="reset"){
+    if(R.confirm){state.boxes={};state.log={};save();R.confirm=false;clearTimeout(R.t);buildQueue();updateHeader();renderStats();toast("Прогресс сброшен");}
+    else{R.confirm=true;renderStats();clearTimeout(R.t);R.t=setTimeout(function(){R.confirm=false;if(tab==="stats")renderStats();},5000);}
+  }
+});
+document.addEventListener("change",function(e){
+  if(e.target.id==="topic"){state.f.topic=e.target.value;refilter();}
+  else if(e.target.id==="goal"){state.goal=+e.target.value;save();updateHeader();}
+  else if(e.target.id==="voice"){state.voice=e.target.value;save();speak("Let me think about that.");}
+  else if(e.target.id==="rate"){state.rate=+e.target.value;save();speak("Let me think about that.");}
+});
+document.addEventListener("input",function(e){if(e.target.id==="q"){W.q=e.target.value;renderList();}});
+document.addEventListener("submit",function(e){if(e.target.id==="addForm"){e.preventDefault();addWord(e.target);}});
+document.addEventListener("keydown",function(e){
+  if(tab!=="cards")return;
+  var t=e.target;if(t&&t.closest&&t.closest("button,select,input,textarea,summary,a"))return;
+  if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();}
+  else if(e.key==="ArrowLeft")answerCard(false);
+  else if(e.key==="ArrowRight")answerCard(true);
+});
+
+updateHeader();buildQueue();render();
+})();
+</script>
+
+</body></html>
